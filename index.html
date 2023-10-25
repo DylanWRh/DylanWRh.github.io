@@ -170,7 +170,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-10-25 10:51:50 / 修改时间：11:13:41" itemprop="dateCreated datePublished" datetime="2023-10-25T10:51:50+08:00">2023-10-25</time>
+              <time title="创建时间：2023-10-25 10:51:50 / 修改时间：23:47:42" itemprop="dateCreated datePublished" datetime="2023-10-25T10:51:50+08:00">2023-10-25</time>
             </span>
 
           
@@ -184,10 +184,412 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="傅里叶变换">傅里叶变换</h1>
-<h2 id="周期函数的傅里叶级数">1. 周期函数的傅里叶级数</h2>
-<h3 id="三角函数系的正交性">1.1 三角函数系的正交性</h3>
-<p><span class="math inline">\(\epsilon\_0\)</span></p>
+          <p><span class="math display">\[
+\def \dd {\mathrm{d}}
+\def \ee {\mathrm{e}}
+\def \ii {\mathrm{i}}
+\def \w {\omega}
+\def \FF {\mathscr{F}}
+\def \IF {\FF^{-1}}
+\]</span></p>
+<h1 id="三角函数系的正交性">三角函数系的正交性</h1>
+<p><b>定义（正交）</b> 称实函数<span class="math inline">\(f\)</span>和<span class="math inline">\(g\)</span>在区间<span class="math inline">\([a, b]\)</span>上正交，若</p>
+<p><span class="math display">\[
+\int_{a}^{b}f(x)g(x)\dd x = 0
+\]</span></p>
+<p><b>定理</b> 三角函数系 <span class="math display">\[
+1, \cos x, \sin x, \cos 2x, \sin 2x, \cdots
+\]</span> 在<span class="math inline">\([0, 2\pi]\)</span>是两两正交的，从而由周期性可知在任意长度为<span class="math inline">\(2\pi\)</span>的连续闭区间上也是两两正交的</p>
+<details>
+<summary>
+<b>证明</b>
+</summary>
+<p>情况一：<span class="math inline">\(\cos mx\)</span>与<span class="math inline">\(\sin nx\)</span>正交 <span class="math display">\[
+\begin{aligned}
+\int_{0}^{2\pi}\cos mx\sin nx\dd x = \int_{0}^{2\pi}\dfrac{1}{2}(\sin(m+n)x -\sin(m-n)x)\dd x = 0
+\end{aligned}
+\]</span> 情况二：<span class="math inline">\(\cos mx\)</span>与<span class="math inline">\(\cos nx (m\neq n)\)</span>正交</p>
+<p><span class="math display">\[
+\begin{aligned}
+\int_{0}^{2\pi}\cos mx\cos nx\dd x = \int_{0}^{2\pi}\dfrac{1}{2}(\cos(m+n)x +\cos(m-n)x)\dd x = 
+\begin{cases}
+0, &amp; m \neq n \\
+\pi, &amp; m = n
+\end{cases}
+\end{aligned}
+\]</span></p>
+<p>情况三：<span class="math inline">\(\sin mx\)</span>与<span class="math inline">\(\sin nx (m\neq n)\)</span>正交</p>
+<p><span class="math display">\[
+\begin{aligned}
+\int_{0}^{2\pi}\cos mx\cos nx\dd x = \int_{0}^{2\pi}\dfrac{1}{2}(\cos(m-n)x -\cos(m+n)x)\dd x = 
+\begin{cases}
+0, &amp; m \neq n \\
+\pi, &amp; m = n
+\end{cases}
+\end{aligned}
+\]</span></p>
+</details>
+<h1 id="周期函数的傅里叶级数">周期函数的傅里叶级数</h1>
+<h2 id="傅里叶级数的定义">傅里叶级数的定义</h2>
+<p>傅里叶级数希望将一个周期函数<span class="math inline">\(f(x)\)</span>（假定<span class="math inline">\(2\pi\)</span>是它的一个周期）表达为 <span class="math display">\[
+\hat{f}(x) = \dfrac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos n x + b_n\sin n x)
+\]</span> 的形式（从后面可以看出，<span class="math inline">\(a_0\)</span>的系数<span class="math inline">\(\dfrac{1}{2}\)</span>将带来形式上的方便）</p>
+<p>根据三角函数系正交的性质，假定无穷求和与积分可以交换顺序，那么 <span class="math display">\[
+\begin{aligned}
+\int_{0}^{2\pi}\hat{f}(x)\cos mx\dd x 
+&amp;= \int_{0}^{2\pi}\dfrac{a_0}{2}\cos mx\dd x + \sum_{n=1}^{\infty}\left(\int_{0}^{2\pi}a_n\cos nx\cos mx \dd x + \int_{0}^{2\pi}b_n\sin nx\cos mx\dd x\right) \\
+&amp;= \begin{cases}
+    \displaystyle\int_{0}^{2\pi}\dfrac{a_0}{2}\dd x , &amp; m=0 \\
+    \displaystyle\int_{0}^{2\pi}a_m\cos^2 mx\dd x , &amp;m\neq 0
+\end{cases} \\
+&amp;= a_m\pi \\ 
+\int_{0}^{2\pi}\hat{f}(x)\sin mx\dd x &amp; = b_m\pi
+\end{aligned}
+\]</span> 我们希望 <span class="math display">\[
+\begin{aligned}
+\int_{0}^{2\pi}f(x)\cos mx \dd x &amp;= \int_{0}^{2\pi}\hat{f}(x)\cos mx\dd x \\
+\int_{0}^{2\pi}f(x)\sin mx \dd x &amp;= \int_{0}^{2\pi}\hat{f}(x)\sin mx\dd x
+\end{aligned}
+\]</span> 因此，我们取 <span class="math display">\[
+\begin{aligned}
+    a_n &amp;= \dfrac{1}{\pi}\int_{0}^{2\pi}f(x)\cos nx \dd x \\
+    b_n &amp;= \dfrac{1}{\pi}\int_{0}^{2\pi}f(x)\sin nx \dd x
+\end{aligned}
+\]</span> 并记<span class="math inline">\(f(x)\)</span>的傅里叶级数为 <span class="math display">\[
+f(x) \sim \dfrac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos n x + b_n\sin n x)
+\]</span> 这里用符号<span class="math inline">\(\sim\)</span>而不用等号的原因是<span class="math inline">\(f(x)\)</span>的傅里叶级数只是利用<span class="math inline">\(f(x)\)</span>所求得的一个级数，并不知道它是否收敛到<span class="math inline">\(f(x)\)</span>，特别地，改变<span class="math inline">\(f(x)\)</span>在一个周期内有限个点的取值并不会改变积分结果，因此可以有无穷多的函数对应于同一个傅里叶级数。</p>
+<h2 id="傅里叶级数的收敛性">傅里叶级数的收敛性</h2>
+<p><b>定理</b> 若<span class="math inline">\(f(x)\)</span>在一个周期内满足以下两条性质之一 1. 分段广义可微 2. 分段单调有界</p>
+<p>则其傅里叶级数<span class="math inline">\(\hat{f}\)</span>收敛，且 <span class="math display">\[
+\hat{f}(x) = \dfrac{f(x+0)+f(x-0)}{2}
+\]</span></p>
+<p>一般而言，我们见到的函数都满足定理条件，因此可以默认傅里叶级数几乎处处收敛到原函数。</p>
+<p>为方便起见，接下来若无特殊说明，均认为<span class="math inline">\(f(x)=\hat{f}(x)\)</span>。</p>
+<h2 id="周期不为2pi的函数的傅里叶级数">周期不为<span class="math inline">\(2\pi\)</span>的函数的傅里叶级数</h2>
+<p>假设<span class="math inline">\(f(x)\)</span>周期为<span class="math inline">\(2L\)</span>，令<span class="math inline">\(g(x) = f\left(\dfrac{L}{\pi}x\right)\)</span>是一个周期为<span class="math inline">\(2\pi\)</span>的函数。，故 <span class="math display">\[
+\hat{f}(x) = f(x) 
+= g\left(\dfrac{\pi}{L}x\right)
+=\dfrac{a_0}{2}+
+\sum_{n=1}^{\infty}\left(a_n\cos n\dfrac{\pi}{L}x+b_n\sin n \dfrac{\pi}{L}x\right)
+\]</span> 其中 <span class="math display">\[
+\begin{aligned}
+    a_n &amp;= \dfrac{1}{\pi}\int_{0}^{2\pi}g(x)\cos nx \dd x = \dfrac{1}{L}\int_{0}^{2L}f(x)\cos n\w x \dd x\\
+    b_n &amp;= \dfrac{1}{\pi}\int_{0}^{2\pi}g(x)\sin nx \dd x=\dfrac{1}{L}\int_{0}^{2L}f(x)\sin n\w x \dd x \\ 
+    \w &amp;= \dfrac{2\pi}{T} = \dfrac{\pi}{L}
+\end{aligned}
+\]</span></p>
+<h2 id="复数形式的傅里叶级数">复数形式的傅里叶级数</h2>
+<p>利用欧拉公式 <span class="math display">\[
+\begin{aligned}
+    \cos x &amp;= \dfrac{\ee^{\ii x} + \ee^{-\ii x}}{2} \\
+    \sin x &amp;= \dfrac{\ee^{\ii x} - \ee^{-\ii x}}{2\ii}
+\end{aligned}
+\]</span> 改写傅里叶级数为 <span class="math display">\[
+\begin{aligned}
+\hat{f}(x) &amp;= \dfrac{a_0}{2}+\sum_{n=1}^{\infty}\left(a_n\dfrac{\ee^{\ii n \w x} + \ee ^ {-\ii n \w x}}{2} + b_n\dfrac{\ee^{\ii n \w x} - \ee ^ {-\ii n \w x}}{2\ii}\right) \\ 
+&amp;=\dfrac{a_0}{2} + \sum_{n=1}^{\infty}\left(\dfrac{a_n-\ii b_n}{2}\ee^{\ii n\w x} + \dfrac{a_n+\ii b_n}{2}\ee^{-\ii n\w x}\right) \\
+&amp;= \sum_{n=-\infty}^{\infty}c_n\ee^{\ii n \w x}
+\end{aligned}
+\]</span> 其中 <span class="math display">\[
+c_n = \dfrac{1}{T}\int_{0}^{T} f(x)\ee ^{-\ii n\w x}\dd x
+\]</span></p>
+<h2 id="傅里叶系数与原函数的关系">傅里叶系数与原函数的关系</h2>
+<p><strong>定理（Parseval等式）</strong> 设<span class="math inline">\(f(x)\)</span>是平方可积的周期函数，则 <span class="math display">\[
+\dfrac{1}{T}\int_{0}^{T}f^2(x)\dd x = \sum_{n=-\infty}^{\infty}|c_n|^2 = \dfrac{1}{2}\left(\dfrac{a_0^2}{2} + \sum_{n=1}^{\infty}(a_n^2+b_n^2)\right) 
+\]</span></p>
+<details>
+<summary>
+<b>非严格证明</b>
+</summary>
+<p><span class="math display">\[
+\begin{aligned}
+    \dfrac{1}{T}\int_{0}^{T}{f^2\left( x \right)}\dd x 
+    &amp;= \dfrac{1}{T}\int_{0}^{T}f(x)\sum_{n=-\infty}^{\infty}c_n\ee^{\ii n \w x}\dd x \\ 
+    &amp;= \sum_{n=-\infty}^{\infty}c_n\left(\dfrac{1}{T}\int_{0}^{T}f(x)\ee^{\ii n \w x}\dd x \right) \\
+    &amp;= \sum_{n=-\infty}^{\infty}c_nc_{-n} = \sum_{n=-\infty}^{\infty}|c_n|^2
+\end{aligned}
+\]</span></p>
+</details>
+<h1 id="非周期函数的傅里叶变换">非周期函数的傅里叶变换</h1>
+<h2 id="傅里叶变换">傅里叶变换</h2>
+<p>对于一个定义在<span class="math inline">\(\mathbb{R}\)</span>上的非周期函数<span class="math inline">\(f(x)\)</span>，假设其在<span class="math inline">\(\mathbb{R}\)</span>上绝对可积、平方可积，我们也希望用三角函数来表示<span class="math inline">\(f(x)\)</span>，一个自然的想法是 - 取<span class="math inline">\(f(x)\)</span>在区间<span class="math inline">\([-L,L]\)</span>上的部分，并进行周期延拓得到<span class="math inline">\(f_L(x)\)</span> - 计算<span class="math inline">\(f_L(x)\)</span>的傅里叶级数<span class="math inline">\(\hat{f}_L(x)\)</span> - 对<span class="math inline">\(L\)</span>取极限，得到<span class="math inline">\(\hat{f}(x) = \displaystyle\lim_{L\to \infty}f_L(x)\)</span></p>
+<p>下面推导<span class="math inline">\(\hat{f}(x)\)</span>，先求出<span class="math inline">\(\hat{f}_L(x)\)</span>为 <span class="math display">\[
+\hat{f}_L(x) = \sum_{n=-\infty}^{\infty}\left(\dfrac{1}{2L}\int_{-L}^{L}f(x)\ee^{-\ii n \w x}\dd x\right)\ee^{\ii n \w x}
+\]</span> 对<span class="math inline">\(L\)</span>取极限后，上面的求和可以转化为黎曼积分 <span class="math display">\[
+\begin{equation} 
+    \label{eq:FT}
+    \begin{aligned}
+        \hat{f}(x)=\lim_{L\to \infty} \hat{f}_L(x) &amp;= \lim_{\frac{2\pi}{2L}\to 0^+} \sum_{n=-\infty}^{\infty}\left(\left(\dfrac{1}{2\pi}\right)\left(\dfrac{2\pi}{2L}\right)\int_{-L}^{L}f(x)\ee^{-\ii \left(\frac{2\pi n}{2L}\right)  x}\dd x\right)\ee^{\ii \left(\frac{2\pi n}{2L}\right)   x} \\
+        &amp;= \dfrac{1}{2\pi}\int_{-\infty}^{\infty}\left(\int_{-\infty}^{\infty}f(x)\ee ^ {-\ii \w x}\dd x\right)\ee^{\ii \w x} \dd \w \\ 
+    \end{aligned}
+\end{equation}
+\]</span></p>
+<p>称 <span class="math display">\[
+\FF(f(x)) = F(\w) = \int_{-\infty}^{\infty}f(x)\ee ^ {-\ii \w x}\dd x
+\]</span> 为<span class="math inline">\(f(x)\)</span>的傅里叶变换。</p>
+<details>
+<summary>
+<b>例</b> 盒式函数的傅里叶变换
+</summary>
+<p>对于盒式函数 <span class="math display">\[
+f(x) = \begin{cases}
+    A, &amp; -\dfrac{W}{2} &lt; x &lt; \dfrac{W}{2} \\
+    0, &amp; \mathrm{otherwise}
+\end{cases}
+\]</span></p>
+<p>其傅里叶变换为 <span class="math display">\[
+F(\w) = \FF(f) = \dfrac{2A\sin(\w W/2)}{ \w}
+\]</span></p>
+</details>
+<details>
+<summary>
+<b>例</b> 冲激函数的傅里叶变换
+</summary>
+<p>将冲激函数视为盒式函数的极限</p>
+<p><span class="math display">\[
+F(\w) = \FF(\delta(x)) = \lim_{\substack{W \to 0\\ AW = 1}}\dfrac{2A\sin(\w W/2)}{ \w} = 1
+\]</span></p>
+</details>
+<p><b>注</b> 若用希望傅里叶变换后的函数自变量为频率<span class="math inline">\(\mu\)</span>，而非<span class="math inline">\(\w = 2\pi \mu\)</span>，则有 <span class="math display">\[
+F_{\mu}(\mu) = \dfrac{1}{2\pi}F_{\w}(\w) = \dfrac{1}{2\pi}F_{\w}(2\pi\mu)
+\]</span> 后面的内容中，这两个函数会被简写为<span class="math inline">\(F(\mu)\)</span>和<span class="math inline">\(F(\w)\)</span>，可通过自变量区分</p>
+<h2 id="傅里叶逆变换">傅里叶逆变换</h2>
+<p>在已知<span class="math inline">\(f(x)\)</span>的情况下，可以求出<span class="math inline">\(F(\w)\)</span>，而已知<span class="math inline">\(F(\w)\)</span>，反过来求<span class="math inline">\(\hat{f}(x)\)</span>的过程，称为傅里叶逆变换。利用<span class="math inline">\(\eqref{eq:FT}\)</span>可得到傅里叶逆变换的公式 <span class="math display">\[
+\hat{f}(x) =\IF(F(\w)) = \dfrac{1}{2\pi}\int_{-\infty}^{\infty}F(\w)\ee^{\ii \w  x} \dd \w
+\]</span> 傅里叶逆变换也称为傅里叶积分</p>
+<details>
+<summary>
+<b>例</b> 常函数的傅里叶变换
+</summary>
+<p>对冲激函数做傅里叶逆变换可得 <span class="math display">\[
+\IF(\delta (\w))=\dfrac{1}{2\pi}\int_{-\infty}^{\infty}\delta(\w)\ee^{\ii \w  x} \dd \w = \dfrac{1}{2\pi}\ee^{0} = \cfrac{1}{2\pi}
+\]</span> 故<span class="math inline">\(\FF(C)=2\pi C\delta(\w)\)</span></p>
+</details>
+<p>与傅里叶级数的收敛性质一样，经过傅里叶变换和逆变换后 <span class="math display">\[
+\hat{f}(x) = \IF(\FF(f)) = \dfrac{f(x+0)+f(x-0)}{2}
+\]</span> 此后同样不再区分<span class="math inline">\(f(x)\)</span>与<span class="math inline">\(\hat{f}(x)\)</span>，并用记号<span class="math inline">\(f(x)\leftrightarrow F(\w)\)</span>表示一组原函数和傅里叶变换得到的函数</p>
+<h2 id="傅里叶变换的性质">傅里叶变换的性质</h2>
+<p><b>定理（傅里叶变换的线性性）</b> 设<span class="math inline">\(f_1(t)\leftrightarrow F_1(\w)\)</span>，<span class="math inline">\(f_2(t)\leftrightarrow F_2(\w)\)</span>，则对任意<span class="math inline">\(a, b\in\mathbb{C}\)</span> <span class="math display">\[
+af_1(t)+bf_2(t)\leftrightarrow aF_1(\w)+bF_2(\w)
+\]</span></p>
+<p><b>定理（傅里叶变换的对称性）</b> 设<span class="math inline">\(f(t)\leftrightarrow F(\w)\)</span>，则<span class="math inline">\(F(t)\leftrightarrow 2\pi f(-\w)\)</span></p>
+<p><b>定理（傅里叶变换的缩放性）</b> 设<span class="math inline">\(f(t)\leftrightarrow F(\w)\)</span>，则对于非零常实数<span class="math inline">\(a\)</span> <span class="math display">\[\FF(f(at)) = \dfrac{1}{|a|}F\left(\dfrac{\w}{a}\right)\]</span></p>
+<details>
+<summary>
+<b>缩放性质证明</b>
+</summary>
+<p><span class="math display">\[
+\begin{aligned}
+    \FF(f(at))  &amp;= \begin{cases}
+        \dfrac{1}{|a|}
+        \displaystyle\int_{-\infty}^{\infty}
+            f(at)\ee^{
+                -\ii \frac{\w}{a} (at)
+        }\dd (at) , &amp; a&gt;0\\
+        -\dfrac{1}{|a|}
+        \displaystyle\int_{\infty}^{-\infty}
+            f(at)\ee^{
+                -\ii \frac{\w}{a} (at)
+        }\dd (at) , &amp; a&lt;0\\
+    \end{cases}\\
+    &amp;= \dfrac{1}{|a|}
+        \displaystyle\int_{-\infty}^{\infty}
+            f(at)\ee^{
+                -\ii \frac{\w}{a} (at)
+        }\dd (at) \\
+    &amp;= \dfrac{1}{|a|}F\left(\dfrac{\w}{a}\right)
+\end{aligned}
+\]</span></p>
+</details>
+<p><b>定理（傅里叶变换的时移性质）</b> 设<span class="math inline">\(t_0\)</span>为实常数，若<span class="math inline">\(\FF(f(t)) = F(\w)\)</span>，则 <span class="math display">\[\FF(f(t-t_0)) = F(\w)\ee^{-\ii\w t_0}\]</span></p>
+<details>
+<summary>
+<b>时移性质证明</b>
+</summary>
+<p><span class="math display">\[
+\begin{aligned}
+    \FF(f(t-t_0)) &amp;= \int_{-\infty}^{\infty}f(t-t_0)\ee^{-\ii \w t}\dd t \\
+    &amp;= \int_{-\infty}^{\infty}f(t)\ee^{-\ii \w (t+t_0)}\dd t \\
+    &amp;= \ee^{-\ii \w t_0}\int_{-\infty}^{\infty}f(t)\ee^{-\ii \w t}\dd t = F(\w)\ee^{-\ii\w t_0}
+\end{aligned}
+\]</span></p>
+</details>
+<p><b>定理（傅里叶变换的频移性质）</b> 设<span class="math inline">\(\w_0\)</span>为实常数，若<span class="math inline">\(\IF(F(\w)) = f(t)\)</span>，则 <span class="math display">\[
+\IF(F(\w-\w_0)) = f(t)\ee^{\ii\w_0 t}
+\]</span></p>
+<details>
+<summary>
+<b>频移性质证明</b>
+</summary>
+<p><span class="math display">\[
+\begin{aligned}
+    \IF(F(\w-\w_0)) 
+    &amp;=
+     \int_{-\infty}^{\infty}F(\w-\w_0)\ee^{\ii \w t}\dd \w \\
+    &amp;= \int_{-\infty}^{\infty}F(\w)\ee^{\ii (\w + \w_0) t}\dd \w \\
+    &amp;= \ee^{\ii \w_0 t}\int_{-\infty}^{\infty}F(t)\ee^{\ii \w t}\dd \w = f(t)\ee^{\ii\w_0 t}
+\end{aligned}
+\]</span></p>
+</details>
+<p><b>定理（卷积定理）</b> 设<span class="math inline">\(f_1(x)\leftrightarrow F_1(\w)\)</span>，<span class="math inline">\(f_2(x)\leftrightarrow F_2(\w)\)</span>，则有</p>
+<p>时域卷积定理 <span class="math display">\[
+    \FF(f_1(t) * f_2(t)) = F_1(\w)F_2(\w)
+\]</span></p>
+<p>频域卷积定理 <span class="math display">\[
+\FF(f_1(t)f_2(t)) = \dfrac{1}{2\pi}F_1(\w) * F_2(\w)
+\]</span></p>
+<details>
+<summary>
+<b>卷积定理证明</b>
+</summary>
+<p>时域卷积定理的证明 <span class="math display">\[
+\begin{aligned}
+\FF(f_1(t)*f_2(t)) 
+&amp;= 
+\int_{-\infty}^{\infty}
+    \left[
+        \int_{-\infty}^{\infty}
+            f_1(\tau)f_2(t-\tau) \dd \tau 
+    \right] \ee ^{-\ii\w t}\dd t \\
+&amp;= 
+\int_{-\infty}^{\infty}
+    f_1(\tau)
+    \left[
+        \int_{-\infty}^{\infty}
+            f_2(t-\tau) \ee ^{-\ii\w t} \dd t 
+    \right] \dd \tau \\
+&amp;=
+\int_{-\infty}^{\infty}
+    f_1(\tau)
+    \left[
+        F_2(\w)\ee^{-\ii \w \tau}
+    \right] \dd \tau \\
+&amp;=
+F_1(\w)F_2(\w)
+\end{aligned} \\
+\]</span></p>
+<p>频域卷积定理的证明 <span class="math display">\[
+\begin{aligned}
+    \IF (F_1(\w)*F_2(\w)) 
+&amp;= 
+\dfrac{1}{2\pi}
+\int_{-\infty}^{\infty}\left[
+    \int_{-\infty}^{\infty}
+        F_1(\mu)F_2(\w-\mu)\dd \mu
+    \right]\ee^{\ii \w t}\dd \w \\
+&amp;=
+\dfrac{1}{2\pi}
+\int_{-\infty}^{\infty}\left[
+    \int_{-\infty}^{\infty}
+        F_1(\mu)F_2(\w-\mu)
+        \ee^{\ii \mu t}\ee^{\ii (\w-\mu) t}
+        \dd \w
+    \right] \dd \mu\\
+&amp;= 
+\dfrac{1}{2\pi}
+\int_{-\infty}^{\infty}
+    F_1(\mu)\ee^{\ii \mu t}
+    \left[
+    \int_{-\infty}^{\infty}
+        F_2(\w-\mu)
+        \ee^{\ii (\w-\mu) t}
+        \dd (\w-\mu)
+    \right] \dd \mu\\
+&amp;= 
+f_2(t)\int_{-\infty}^{\infty}F_1(\mu)\ee^{\ii \mu t}\dd \mu \\
+&amp;= 2\pi f_1(t)f_2(t)
+\end{aligned}
+\]</span></p>
+</details>
+<h1 id="周期函数的傅里叶变换">周期函数的傅里叶变换</h1>
+<p>设<span class="math inline">\(f(x)\)</span>是一个圆频率为<span class="math inline">\(\w_0\)</span>的周期函数，求傅里叶级数得</p>
+<p><span class="math display">\[
+\hat{f}(x) = \sum_{n=-\infty}^{\infty}c_n\ee^{\ii n \w_0 x}
+\]</span></p>
+<p>将对傅里叶级数的傅里叶变换作为对原函数的傅里叶变换 <span class="math display">\[
+\begin{aligned}
+    \FF(f) = \FF(\hat{f}) &amp;= 
+    \FF(\sum_{n=-\infty}^{\infty}c_n\ee^{\ii n \w_0 x}) \\
+    &amp;= \sum_{n=-\infty}^{\infty}c_n\FF\left(\ee^{\ii n \w_0 x}\right)
+\end{aligned}
+\]</span> 利用常函数的傅里叶变换以及傅里叶变换的时移性质得到<span class="math inline">\(\FF\left(\ee^{\ii n \w_0 x}\right)=2\pi\delta (\w - n\w_0)\)</span>，故 <span class="math display">\[
+\begin{aligned}
+    \FF(f) = 2\pi\sum_{n=-\infty}^{\infty}c_n\delta (\w - n\w_0)
+\end{aligned}
+\]</span></p>
+<details>
+<summary>
+<b>例</b> 周期冲激串的傅里叶变换
+</summary>
+<p>对于周期冲激串 <span class="math display">\[
+s_{\Delta T}(t)=
+\sum_{n=-\infty}^{\infty}
+    \delta(t-n\Delta T)
+\]</span> 有 <span class="math display">\[
+c_n=\dfrac{1}{\Delta T}\int_{-\Delta T/2}^{\Delta T/2} 
+\delta(t)\ee^{-\ii n\frac{2\pi}{\Delta T}t}\dd t = \dfrac{1}{\Delta T}
+\]</span> 故 <span class="math display">\[
+\begin{aligned}
+    \FF(s_{\Delta T}(t)) = 2\pi\sum_{n=-\infty}^{\infty}\cfrac{1}{\Delta T}\delta\left(\w - \dfrac{2n\pi}{\Delta T}\right)
+\end{aligned}
+\]</span> 是一个周期为<span class="math inline">\(\dfrac{2\pi}{\Delta T}\)</span>的周期冲击串</p>
+</details>
+<h1 id="离散傅里叶变换">离散傅里叶变换</h1>
+<h2 id="采样">采样</h2>
+<h3 id="采样的定义">采样的定义</h3>
+<p>为了使用计算机处理信号，需将连续函数转换为离散值，也即进行采样。考虑一个连续函数<span class="math inline">\(f(t)\)</span>，间隔<span class="math inline">\(\Delta T\)</span>的时间对其进行均匀采样，只需利用冲激串函数<span class="math inline">\(s_{\Delta T}(t)\)</span>。采样后的函数为 <span class="math display">\[
+\tilde{f} = f(t)s_{\Delta T}(t) = \sum_{n=-\infty}^{\infty}f(t)\delta(t-n\Delta T)
+\]</span></p>
+<p>采样序列中的第<span class="math inline">\(k\)</span>个值（<span class="math inline">\(k\in \mathbb{Z}\)</span>）可以表示为 <span class="math display">\[
+f_k = f(k\Delta T) = \int_{-\infty}^{\infty}f(t)\delta(t-k\Delta T)\dd t
+\]</span></p>
+<h3 id="采样后函数的傅里叶变换">采样后函数的傅里叶变换</h3>
+<p>利用频域卷积定理 <span class="math display">\[
+\begin{equation}
+\label{eq:SampleFT}
+    \begin{aligned}
+        \tilde{F}(\w) = \FF(\tilde{f}) &amp;= \FF(f(t)s_{\Delta T}(t)) \\
+        &amp;= \dfrac{1}{2\pi}\FF(f(t))*\FF(s_{\Delta T}(t)) \\
+        &amp;= \dfrac{1}{2\pi}F(\w)*\left(2\pi\sum_{n=-\infty}^{\infty}\cfrac{1}{\Delta T}\delta\left(\w - \dfrac{2n\pi}{\Delta T}\right)\right) \\ 
+        &amp;= \dfrac{1}{\Delta T}\sum_{n=-\infty}^{\infty}F(\w) *\delta\left(\w - \dfrac{2n\pi}{\Delta T}\right)\\
+        &amp;= \dfrac{1}{\Delta T}\sum_{n=-\infty}^{\infty}F\left(\w-\dfrac{2n\pi}{\Delta T}\right)
+    \end{aligned}
+\end{equation}
+\]</span></p>
+<h3 id="信号重建">信号重建</h3>
+<p><b>定理（采样定理）</b> 设<span class="math inline">\(f(t)\)</span>具有有限频谱，即存在<span class="math inline">\(\w_\max\)</span>使得<span class="math inline">\(F(\w)=\FF(f)\)</span>在<span class="math inline">\(|\w| \geq \w_\max\)</span>处取值均为零，则只需以不小于<span class="math inline">\(\dfrac{\pi}{\w_\max}\)</span>的周期<span class="math inline">\(\Delta T\)</span>进行采样，即可重建原信号</p>
+<p>并且当<span class="math inline">\(\Delta T = \dfrac{\pi}{\w_\max}\)</span>时，有 <span class="math display">\[
+f(t) = \sum_{n=-\infty}^{\infty}f(n\Delta T)\mathrm{sinc}\left(\dfrac{t-n\Delta T}{\Delta T}\right)
+\]</span> 其中<span class="math inline">\(\mathrm{sinc}(x) = \dfrac{\sin(\pi x)}{\pi x}\)</span></p>
+<details>
+<summary>
+<b>证明</b>
+</summary>
+<p>定义函数<span class="math inline">\(H(\w) = \begin{cases}  \Delta T, &amp; -\w_\max \leq \w \leq \w_\max \\  0, &amp; \mathrm{otherwise} \end{cases}\)</span></p>
+<p>根据<span class="math inline">\(\eqref{eq:SampleFT}\)</span>，当<span class="math inline">\(\Delta T \geq \dfrac{\pi}{\w_\max}\)</span>时，有 <span class="math display">\[
+F(\w) = \tilde{F}(\w)H(\w)
+\]</span> 通过傅里叶逆变换可以从<span class="math inline">\(F(\w)\)</span>恢复出<span class="math inline">\(f(t)\)</span></p>
+<p>当<span class="math inline">\(\Delta T = \dfrac{\pi}{\w_\max}\)</span>时，利用卷积定理 <span class="math display">\[
+\begin{aligned}
+    f(t) = \IF(F(\w)) &amp;= \IF(\tilde{F}(\w)H(\w)) \\
+    &amp;= \IF(\tilde{F}(\w)) * \IF(H(\w)) \\
+    &amp;= \tilde{f}(t) * \left(\dfrac{\Delta T}{\pi t}\sin(\w_\max t)\right) \\
+    &amp;= \left(\sum_{n=-\infty}^{\infty}f(t)\delta(t-n\Delta T)\right) *
+    \left(\dfrac{\Delta T}{\pi t}\sin(\w_\max t)\right)\\
+    &amp;= \sum_{n=-\infty}^{\infty}\int_{-\infty}^{\infty}\delta(\tau - n\Delta T)f(\tau) \left(
+        \dfrac{\Delta T}{\pi (t-\tau)}\sin(\w_\max (t-\tau))
+    \right) \\
+    &amp;= \sum_{n=-\infty}^{\infty}f(n\Delta T) \left(
+        \dfrac{\Delta T}{\pi (t-n\Delta T)}\sin(\w_\max (t-n\Delta T))
+    \right) \\
+    &amp;= \sum_{n=-\infty}^{\infty}f(n\Delta T)\mathrm{sinc}\left(\dfrac{t-n\Delta T}{\Delta T}\right)
+\end{aligned}
+\]</span></p>
+</details>
+<p><b>定义（混叠）</b> 取样后不同信号变得彼此⽆法区分的取样现象，下图是一个混叠现象的例子</p>
+<center>
+<p><img src="Fourier-Transform/aliasing.png" /></p>
+</center>
 
       
     </div>
@@ -489,6 +891,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
