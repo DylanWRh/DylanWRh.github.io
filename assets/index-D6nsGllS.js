@@ -1,7 +1,7 @@
 const siteData = {
   title: "Ruihuan Wang Homepage",
   name: "Ruihuan Wang",
-  avatar: "./assets/avatar.png",
+  avatar: "./favicon.png",
   introHtml: [
     'I am currently pursuing my PhD degree at <a class="highlight" target="_blank" href="https://sai.pku.edu.cn/">School of Intelligence Science and Technology</a>, <a class="highlight" target="_blank" href="https://www.pku.edu.cn/">Peking University</a>, supervised by <a class="highlight" target="_blank" href="https://wang-ps.github.io/">Peng-Shuai Wang</a>. Before that, I received my B.S. degree from <a class="highlight" target="_blank" href="https://eecs.pku.edu.cn/">EECS</a>, <a class="highlight" target="_blank" href="https://www.pku.edu.cn/">Peking University</a>.',
     'My research interests lie in <i>computer graphics</i> and <i>3D vision</i>, with a special focus on <i>3D content creation</i>.',
