@@ -31,6 +31,15 @@ const siteData = {
         { label: "Code", url: "https://github.com/octree-nn/octgpt" },
       ],
     },
+    {
+      conf: "Arxiv",
+      title: "aDSL: Agentic 3D Creation via Joint Agent-Program Design",
+      authors: "Rui-Huan Wang, Si-Tong Wei, Jia-Qi He, Heng-Yi Wei, Baoquan Chen, Peng-Shuai Wang",
+      links: [
+        {label: "Arxiv", url: "https://arxiv.org/abs/2608.17975"},
+        {label: "Code", url: "https://github.com/sig-pku/aDSL"},
+      ],
+    },
   ],
 }
 
