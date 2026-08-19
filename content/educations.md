@@ -13,5 +13,5 @@ Educations section 模板，仅用于说明结构，不代表站点所有者的�
 
 # Educations
 
-- 2024 - Present, Ph.D. Student, [School of Intelligence Science and Technology](https://sai.pku.edu.cn/), [Peking University](https://www.pku.edu.cn/), supervised by [Peng-Shuai Wang](https://wang-ps.github.io/)
+- 2025 - Present, Ph.D. Student, [School of Intelligence Science and Technology](https://sai.pku.edu.cn/), [Peking University](https://www.pku.edu.cn/), supervised by [Peng-Shuai Wang](https://wang-ps.github.io/)
 - 2021 - 2025, B.S, [School of Electronics Engineering and Computer Science](https://eecs.pku.edu.cn/), [Peking University](https://www.pku.edu.cn/)

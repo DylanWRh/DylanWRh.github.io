@@ -1,9 +1,9 @@
 # aDSL: Agentic 3D Creation via Joint Agent-Program Design
 
-> Arxiv 2026
+> arXiv Preprint, 2026
 
-**Authors:** **Rui-Huan Wang**, Si-Tong Wei, Jia-Qi He, Heng-Yi Wei, Baoquan Chen, Peng-Shuai Wang
+**Authors:** **Rui-Huan Wang**, [Si-Tong Wei](@sitongwei), [Jia-Qi He](@jiaqihe), [Heng-Yi Wei](@hengyiwei), [Baoquan Chen](@baoquanchen), [Peng-Shuai Wang](@pengshuaiwang)
 
 ![aDSL demo](./demo.mp4)
 
-[Arxiv](https://arxiv.org/abs/2608.17975) [Code](https://github.com/sig-pku/aDSL)
+[arXiv](https://arxiv.org/abs/2608.17975) [Code](https://github.com/sig-pku/aDSL)

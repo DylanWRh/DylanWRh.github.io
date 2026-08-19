@@ -9,6 +9,7 @@
 
 - `template/profile.md`：个人信息与联系方式。
 - `template/main.md`：section 展示顺序与显隐入口。
+- `template/authors.md`：作者 key 与主页 URL 注册表。
 - `template/educations.md`：教育经历。
 - `template/services.md`：学术与教学服务。
 - `template/publications.md`：论文列表和排序。
@@ -30,6 +31,20 @@
 
 除 Profile 的姓名标题外，Educations、Services、Publications 及其他内容 section 都使用一级
 Markdown 标题，并以相同的页面标题样式显示。
+
+## 维护作者主页
+
+`content/authors.md` 集中保存唯一 key 与作者主页。论文中引用 key，主页变更时无需逐篇修改：
+
+```markdown
+# content/authors.md
+- [sitongwei](https://wst2001.github.io/)
+
+# content/publications/example/index.md
+**Authors:** [Si-Tong Wei](@sitongwei), [Chuan-Zhi Zhou](@chuanzhizhou)
+```
+
+如果 `chuanzhizhou` 尚未登记，页面只显示 `Chuan-Zhi Zhou`，不会生成链接。
 
 ## 修改论文列表
 

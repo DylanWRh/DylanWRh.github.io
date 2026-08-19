@@ -1,4 +1,5 @@
 const MAIN_CONTENT_PATH = "./content/main.md"
+const AUTHOR_CARDS_PATH = "./content/authors.md"
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function (char) {
@@ -30,7 +31,7 @@ function renderTextFormatting(value) {
     .replace(/\*([^*]+)\*/g, "<i>$1</i>")
 }
 
-function renderInlineMarkdown(value, baseUrl) {
+function renderInlineMarkdown(value, baseUrl, linkResolver) {
   const linkPattern = /\[([^\]]+)\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g
   let html = ""
   let cursor = 0
@@ -38,12 +39,21 @@ function renderInlineMarkdown(value, baseUrl) {
 
   while ((match = linkPattern.exec(value)) !== null) {
     html += renderTextFormatting(value.slice(cursor, match.index))
-    html +=
-      '<a class="highlight" target="_blank" rel="noopener noreferrer" href="' +
-      escapeHtml(baseUrl ? resolveUrl(match[2], baseUrl) : match[2]) +
-      '">' +
-      renderTextFormatting(match[1]) +
-      "</a>"
+    const href = linkResolver
+      ? linkResolver(match[2])
+      : baseUrl
+        ? resolveUrl(match[2], baseUrl)
+        : match[2]
+    if (href) {
+      html +=
+        '<a class="highlight" target="_blank" rel="noopener noreferrer" href="' +
+        escapeHtml(href) +
+        '">' +
+        renderTextFormatting(match[1]) +
+        "</a>"
+    } else {
+      html += renderTextFormatting(match[1])
+    }
     cursor = match.index + match[0].length
   }
 
@@ -60,6 +70,27 @@ function extractMarkdownLinks(markdown) {
   }
 
   return links
+}
+
+function normalizeAuthorKey(value) {
+  return String(value).trim().replace(/^@/, "").toLowerCase()
+}
+
+function parseAuthorCards(markdown, sourceUrl) {
+  const cards = new Map()
+  extractMarkdownLinks(normalizeMarkdown(markdown)).forEach(function (link) {
+    const key = normalizeAuthorKey(link.label)
+    if (key) cards.set(key, resolveUrl(link.href, sourceUrl))
+  })
+  return cards
+}
+
+function renderAuthorMarkdown(value, sourceUrl, authorCards) {
+  return renderInlineMarkdown(value, sourceUrl, function (href) {
+    const cardReference = href.match(/^@([a-z0-9][a-z0-9_-]*)$/i)
+    if (!cardReference) return resolveUrl(href, sourceUrl)
+    return authorCards.get(normalizeAuthorKey(cardReference[1])) || ""
+  })
 }
 
 function extractImage(markdown) {
@@ -124,13 +155,16 @@ function parsePublicationIndex(markdown, sourceUrl) {
   }
 }
 
-function parsePublication(markdown, sourceUrl) {
+function parsePublication(markdown, sourceUrl, authorCards) {
   const normalized = normalizeMarkdown(markdown)
   const media = extractImage(normalized)
   const venueMatch = normalized.match(/^>\s*(.+)$/m)
-  const authorsMatch = normalized.match(/\*\*Authors:\*\*\s*([^\n]+(?:\n(?!\s*\n|#|>|!|\[)[^\n]+)*)/i)
+  const authorsMatch = normalized.match(/\*\*Authors:\*\*\s*([\s\S]*?)(?=\n\s*\n|$)/i)
   const authors = authorsMatch ? authorsMatch[1].replace(/\s*\n\s*/g, " ").trim() : ""
   const mediaUrl = media ? resolveUrl(media.src, sourceUrl) : ""
+  const resourceSource = normalized
+    .replace(authorsMatch ? authorsMatch[0] : "", "")
+    .replace(media ? media.markdown : "", "")
 
   return {
     conf: venueMatch ? venueMatch[1].trim() : "",
@@ -138,8 +172,8 @@ function parsePublication(markdown, sourceUrl) {
     teaserAlt: media ? media.alt : "",
     teaserType: /\.mp4(?:$|[?#])/i.test(mediaUrl) ? "video" : "image",
     title: extractHeading(normalized, 1),
-    authors,
-    links: extractMarkdownLinks(normalized).map(function (link) {
+    authorsHtml: renderAuthorMarkdown(authors, sourceUrl, authorCards),
+    links: extractMarkdownLinks(resourceSource).map(function (link) {
       return { label: link.label, url: resolveUrl(link.href, sourceUrl) }
     }),
   }
@@ -272,7 +306,7 @@ async function loadMarkdown(path) {
   return { markdown: await response.text(), sourceUrl: response.url }
 }
 
-async function loadSection(entry) {
+async function loadSection(entry, authorCards) {
   const file = await loadMarkdown(entry.source)
   const type = contentTypeFor(file.sourceUrl)
 
@@ -291,7 +325,7 @@ async function loadSection(entry) {
       type,
       title: publicationIndex.title,
       publications: publicationFiles.map(function (publicationFile) {
-        return parsePublication(publicationFile.markdown, publicationFile.sourceUrl)
+        return parsePublication(publicationFile.markdown, publicationFile.sourceUrl, authorCards)
       }),
     }
   }
@@ -303,9 +337,17 @@ async function loadSection(entry) {
 }
 
 async function loadSiteData() {
-  const mainFile = await loadMarkdown(MAIN_CONTENT_PATH)
+  const [mainFile, authorCardsFile] = await Promise.all([
+    loadMarkdown(MAIN_CONTENT_PATH),
+    loadMarkdown(AUTHOR_CARDS_PATH),
+  ])
   const entries = parseMain(mainFile.markdown, mainFile.sourceUrl)
-  const sections = await Promise.all(entries.map(loadSection))
+  const authorCards = parseAuthorCards(authorCardsFile.markdown, authorCardsFile.sourceUrl)
+  const sections = await Promise.all(
+    entries.map(function (entry) {
+      return loadSection(entry, authorCards)
+    }),
+  )
   const profile = sections.find(function (section) {
     return section.type === "profile"
   })
@@ -382,7 +424,7 @@ function renderPublicationCard(publication) {
     escapeHtml(publication.title) +
     "</div>" +
     '<div class="text-base text-gray-700 dark:text-gray-300 mb-2">' +
-    renderTextFormatting(publication.authors) +
+    publication.authorsHtml +
     "</div>" +
     "</div>" +
     '<div class="flex gap-3">' +

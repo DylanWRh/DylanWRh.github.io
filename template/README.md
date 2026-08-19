@@ -3,6 +3,7 @@
 这个目录包含个人主页各个 section 的可复制模板：
 
 - `main.md`：控制所有 section 的展示顺序与显隐。
+- `authors.md`：集中维护作者 key 与主页 URL，不作为页面 section 展示。
 - `profile.md`：姓名、头像、个人简介和联系方式。
 - `educations.md`：教育经历及 Advisor、Research 等嵌套信息。
 - `services.md`：审稿、助教、组织工作等服务经历。
