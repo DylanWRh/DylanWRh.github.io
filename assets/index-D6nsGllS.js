@@ -22,6 +22,15 @@ const siteData = {
   emphasisNames: ["Rui-Huan Wang", "Ruihuan Wang"],
   publications: [
     {
+      conf: "Arxiv",
+      title: "aDSL: Agentic 3D Creation via Joint Agent-Program Design",
+      authors: "Rui-Huan Wang, Si-Tong Wei, Jia-Qi He, Heng-Yi Wei, Baoquan Chen, Peng-Shuai Wang",
+      links: [
+        {label: "Arxiv", url: "https://arxiv.org/abs/2608.17975"},
+        {label: "Code", url: "https://github.com/sig-pku/aDSL"},
+      ],
+    },
+    {
       conf: "ACM SIGGRAPH 2025",
       teaser: "./assets/papers/octgpt.png",
       title: "OctGPT: Octree-based Multiscale Autoregressive Models for 3D Shape Generation",
@@ -29,15 +38,6 @@ const siteData = {
       links: [
         { label: "Arxiv", url: "https://arxiv.org/abs/2504.09975" },
         { label: "Code", url: "https://github.com/octree-nn/octgpt" },
-      ],
-    },
-    {
-      conf: "Arxiv",
-      title: "aDSL: Agentic 3D Creation via Joint Agent-Program Design",
-      authors: "Rui-Huan Wang, Si-Tong Wei, Jia-Qi He, Heng-Yi Wei, Baoquan Chen, Peng-Shuai Wang",
-      links: [
-        {label: "Arxiv", url: "https://arxiv.org/abs/2608.17975"},
-        {label: "Code", url: "https://github.com/sig-pku/aDSL"},
       ],
     },
   ],
