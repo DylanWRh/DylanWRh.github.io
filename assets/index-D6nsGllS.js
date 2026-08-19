@@ -103,7 +103,7 @@ function parseProfile(markdown, sourceUrl) {
   return {
     title: name + " Homepage",
     name,
-    avatar: image ? resolveUrl(image.src, sourceUrl) : "",
+    profileImage: image ? resolveUrl(image.src, sourceUrl) : "",
     introHtml: paragraphs.map(renderInlineMarkdown),
     links: extractMarkdownLinks(linksSource).map(function (link) {
       return {
@@ -262,6 +262,19 @@ function renderPublicationCard(publication) {
 function render(siteData) {
   document.title = siteData.title
 
+  const profileImage = siteData.profileImage
+    ? '<img src="' +
+      escapeHtml(siteData.profileImage) +
+      '" class="profile-image w-1/3 mr-5 min-w-50 phone-hidden" alt="' +
+      escapeHtml(siteData.name) +
+      '">' +
+      '<img src="' +
+      escapeHtml(siteData.profileImage) +
+      '" class="profile-image w-1/3 mr-5 w-50 phone-block hidden" alt="' +
+      escapeHtml(siteData.name) +
+      '">'
+    : ""
+
   const app = document.getElementById("app")
   app.innerHTML =
     '<div class="main-page" font-sans="" p="x-4 y-10" text="center gray-700 dark:gray-200">' +
@@ -272,16 +285,7 @@ function render(siteData) {
     escapeHtml(siteData.name) +
     "</div>" +
     '<div class="mt-5 mr-auto text-base font-bold items-start flex phone-flex-col">' +
-    '<img src="' +
-    escapeHtml(siteData.avatar) +
-    '" class="w-1/3 mr-5 min-w-50 phone-hidden" alt="' +
-    escapeHtml(siteData.name) +
-    '">' +
-    '<img src="' +
-    escapeHtml(siteData.avatar) +
-    '" class="w-1/3 mr-5 w-50 phone-block hidden" alt="' +
-    escapeHtml(siteData.name) +
-    '">' +
+    profileImage +
     '<div class="flex-1">' +
     siteData.introHtml
       .map(function (paragraph) {

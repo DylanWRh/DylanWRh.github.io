@@ -29,6 +29,12 @@ img {
   height: auto;
 }
 
+.profile-image {
+  aspect-ratio: auto;
+  height: auto;
+  object-fit: contain;
+}
+
 div.main-page {
   font-family:
     "Crimson Pro",
