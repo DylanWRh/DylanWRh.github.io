@@ -4,4 +4,6 @@
 
 **Authors:** **Rui-Huan Wang**, Si-Tong Wei, Jia-Qi He, Heng-Yi Wei, Baoquan Chen, Peng-Shuai Wang
 
+![aDSL demo](./demo.mp4)
+
 [Arxiv](https://arxiv.org/abs/2608.17975) [Code](https://github.com/sig-pku/aDSL)

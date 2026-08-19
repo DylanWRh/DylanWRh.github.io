@@ -12,6 +12,6 @@
 
 1. 修改个人信息时，参考 `profile.md` 编辑 `content/profile.md`。
 2. 新增论文时，在 `content/publications/` 下新建以论文简称命名的目录。
-3. 将 `publication.md` 复制为新目录中的 `index.md`，同时把预览图等资源放进该目录。
+3. 将 `publication.md` 复制为新目录中的 `index.md`，同时把预览图片或 MP4 视频放进该目录。
 4. 在 `content/publications.md` 中添加新论文的 `index.md` 链接，并调整列表顺序。
 5. 运行 `npm run dev`，打开 `http://127.0.0.1:8000/` 预览。

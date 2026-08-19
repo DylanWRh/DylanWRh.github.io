@@ -127,14 +127,17 @@ function parsePublicationIndex(markdown, sourceUrl) {
 
 function parsePublication(markdown, sourceUrl) {
   const normalized = normalizeMarkdown(markdown)
-  const image = extractImage(normalized)
+  const media = extractImage(normalized)
   const venueMatch = normalized.match(/^>\s*(.+)$/m)
   const authorsMatch = normalized.match(/\*\*Authors:\*\*\s*([^\n]+(?:\n(?!\s*\n|#|>|!|\[)[^\n]+)*)/i)
   const authors = authorsMatch ? authorsMatch[1].replace(/\s*\n\s*/g, " ").trim() : ""
+  const mediaUrl = media ? resolveUrl(media.src, sourceUrl) : ""
 
   return {
     conf: venueMatch ? venueMatch[1].trim() : "",
-    teaser: image ? resolveUrl(image.src, sourceUrl) : "",
+    teaser: mediaUrl,
+    teaserAlt: media ? media.alt : "",
+    teaserType: /\.mp4(?:$|[?#])/i.test(mediaUrl) ? "video" : "image",
     title: extractHeading(normalized, 1),
     authors,
     links: extractMarkdownLinks(normalized).map(function (link) {
@@ -209,18 +212,27 @@ function renderPublicationLinks(links) {
 }
 
 function renderPublicationCard(publication) {
-  const teaser = publication.teaser
-    ? '<img src="' +
+  let teaser = ""
+  if (publication.teaserType === "video") {
+    teaser =
+      '<video src="' +
+      escapeHtml(publication.teaser) +
+      '" aria-label="' +
+      escapeHtml(publication.teaserAlt || publication.title + " demo") +
+      '" class="object-contain w-full h-full" autoplay loop muted playsinline preload="metadata"></video>'
+  } else if (publication.teaser) {
+    teaser =
+      '<img src="' +
       escapeHtml(publication.teaser) +
       '" alt="' +
-      escapeHtml(publication.title + " teaser") +
+      escapeHtml(publication.teaserAlt || publication.title + " teaser") +
       '" class="object-contain">'
-    : ""
+  }
 
   return (
     '<div class="relative">' +
     '<div class="publication-card flex items-center bg-white dark:bg-gray-800 rounded-md overflow-hidden transition-shadow duration-300 shadow-md hover:shadow-2xl border border-gray-200 dark:border-gray-700 relative phone-flex-col">' +
-    '<div class="pc-w-50 phone-w-full h-full flex shadow-md border-r border-gray-200 dark:border-gray-700 pc-absolute bg-white">' +
+    '<div class="publication-media pc-w-50 phone-w-full flex shadow-md border-r border-gray-200 dark:border-gray-700 pc-absolute bg-white">' +
     teaser +
     "</div>" +
     '<div class="pc-ml-50 flex-1 px-6 py-4 min-h-40 flex flex-col justify-between">' +

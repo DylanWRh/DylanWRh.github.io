@@ -19,10 +19,12 @@
 content/publications/
 └── paper-short-name/
     ├── index.md
-    └── teaser.png
+    ├── teaser.png
+    └── demo.mp4
 ```
 
-这样 `index.md` 中的图片路径只需写 `./teaser.png`。在 `content/publications.md`
+图片和 MP4 视频均可作为卡片预览，路径只需写 `./teaser.png` 或 `./demo.mp4`。
+在 `content/publications.md`
 中加入论文 `index.md` 的链接即可显示卡片；列表顺序就是页面顺序。
 
 由于浏览器需要读取 Markdown 文件，本地预览时应启动静态服务器，不要直接双击打开
