@@ -8,8 +8,28 @@
 `template/` 中提供了各个 section 的详细说明和可复制模板：
 
 - `template/profile.md`：个人信息与联系方式。
+- `template/main.md`：section 展示顺序与显隐入口。
+- `template/educations.md`：教育经历。
+- `template/services.md`：学术与教学服务。
 - `template/publications.md`：论文列表和排序。
 - `template/publication.md`：单篇论文及其资源。
+
+## 调整 section
+
+页面只加载 `content/main.md` 中列出的 section。列表顺序就是页面顺序；删除或注释某行即可
+隐藏对应 section，而不需要删除内容文件：
+
+```markdown
+# Sections
+
+- [Profile](./profile.md)
+- [Educations](./educations.md)
+- [Services](./services.md)
+- [Publications](./publications.md)
+```
+
+除 Profile 的姓名标题外，Educations、Services、Publications 及其他内容 section 都使用一级
+Markdown 标题，并以相同的页面标题样式显示。
 
 ## 修改论文列表
 

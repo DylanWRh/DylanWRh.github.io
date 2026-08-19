@@ -1,7 +1,4 @@
-const CONTENT_PATHS = {
-  profile: "./content/profile.md",
-  publications: "./content/publications.md",
-}
+const MAIN_CONTENT_PATH = "./content/main.md"
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function (char) {
@@ -33,7 +30,7 @@ function renderTextFormatting(value) {
     .replace(/\*([^*]+)\*/g, "<i>$1</i>")
 }
 
-function renderInlineMarkdown(value) {
+function renderInlineMarkdown(value, baseUrl) {
   const linkPattern = /\[([^\]]+)\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g
   let html = ""
   let cursor = 0
@@ -43,7 +40,7 @@ function renderInlineMarkdown(value) {
     html += renderTextFormatting(value.slice(cursor, match.index))
     html +=
       '<a class="highlight" target="_blank" rel="noopener noreferrer" href="' +
-      escapeHtml(match[2]) +
+      escapeHtml(baseUrl ? resolveUrl(match[2], baseUrl) : match[2]) +
       '">' +
       renderTextFormatting(match[1]) +
       "</a>"
@@ -104,7 +101,9 @@ function parseProfile(markdown, sourceUrl) {
     title: name + " Homepage",
     name,
     profileImage: image ? resolveUrl(image.src, sourceUrl) : "",
-    introHtml: paragraphs.map(renderInlineMarkdown),
+    introHtml: paragraphs.map(function (paragraph) {
+      return renderInlineMarkdown(paragraph, sourceUrl)
+    }),
     links: extractMarkdownLinks(linksSource).map(function (link) {
       return {
         label: link.label,
@@ -146,6 +145,125 @@ function parsePublication(markdown, sourceUrl) {
   }
 }
 
+function parseMain(markdown, sourceUrl) {
+  return extractMarkdownLinks(normalizeMarkdown(markdown)).map(function (link) {
+    return {
+      label: link.label,
+      source: resolveUrl(link.href, sourceUrl),
+    }
+  })
+}
+
+function contentTypeFor(sourceUrl) {
+  try {
+    const pathname = new URL(sourceUrl).pathname.toLowerCase()
+    const filename = pathname.slice(pathname.lastIndexOf("/") + 1)
+    if (filename === "profile.md") return "profile"
+    if (filename === "publications.md") return "publications"
+  } catch {
+    // Unknown files fall back to the generic Markdown section renderer.
+  }
+  return "markdown"
+}
+
+function parseMarkdownList(lines) {
+  const root = []
+  const stack = [{ indent: -1, children: root }]
+
+  lines.forEach(function (line) {
+    const match = line.match(/^(\s*)-\s+(.+)$/)
+    if (!match) return
+    const indent = match[1].replace(/\t/g, "  ").length
+
+    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
+      stack.pop()
+    }
+
+    const item = { text: match[2].trim(), children: [] }
+    stack[stack.length - 1].children.push(item)
+    stack.push({ indent, children: item.children })
+  })
+
+  return root
+}
+
+function renderMarkdownList(items, sourceUrl) {
+  if (!items.length) return ""
+  return (
+    "<ul>" +
+    items
+      .map(function (item) {
+        return (
+          "<li>" +
+          renderInlineMarkdown(item.text, sourceUrl) +
+          renderMarkdownList(item.children, sourceUrl) +
+          "</li>"
+        )
+      })
+      .join("") +
+    "</ul>"
+  )
+}
+
+function renderMarkdownBody(markdown, sourceUrl) {
+  const lines = markdown.split("\n")
+  const html = []
+  let index = 0
+
+  while (index < lines.length) {
+    const line = lines[index]
+    if (!line.trim()) {
+      index += 1
+      continue
+    }
+
+    if (/^\s*-\s+/.test(line)) {
+      const listLines = []
+      while (index < lines.length && /^\s*-\s+/.test(lines[index])) {
+        listLines.push(lines[index])
+        index += 1
+      }
+      html.push(renderMarkdownList(parseMarkdownList(listLines), sourceUrl))
+      continue
+    }
+
+    const headingMatch = line.match(/^#{2,6}\s+(.+)$/)
+    if (headingMatch) {
+      html.push(
+        '<h3 class="markdown-subheading">' +
+          renderInlineMarkdown(headingMatch[1].trim(), sourceUrl) +
+          "</h3>",
+      )
+      index += 1
+      continue
+    }
+
+    const paragraphLines = []
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !/^\s*-\s+/.test(lines[index]) &&
+      !/^#{2,6}\s+/.test(lines[index])
+    ) {
+      paragraphLines.push(lines[index].trim())
+      index += 1
+    }
+    html.push("<p>" + renderInlineMarkdown(paragraphLines.join(" "), sourceUrl) + "</p>")
+  }
+
+  return html.join("")
+}
+
+function parseMarkdownSection(markdown, sourceUrl, fallbackTitle) {
+  const normalized = normalizeMarkdown(markdown)
+  const title = extractHeading(normalized, 1) || fallbackTitle
+  const body = normalized.replace(/^#\s+.+$/m, "").trim()
+  return {
+    title,
+    bodyHtml: renderMarkdownBody(body, sourceUrl),
+  }
+}
+
 async function loadMarkdown(path) {
   const response = await fetch(path)
   if (!response.ok) {
@@ -154,24 +272,47 @@ async function loadMarkdown(path) {
   return { markdown: await response.text(), sourceUrl: response.url }
 }
 
-async function loadSiteData() {
-  const [profileFile, publicationIndexFile] = await Promise.all([
-    loadMarkdown(CONTENT_PATHS.profile),
-    loadMarkdown(CONTENT_PATHS.publications),
-  ])
-  const profile = parseProfile(profileFile.markdown, profileFile.sourceUrl)
-  const publicationIndex = parsePublicationIndex(
-    publicationIndexFile.markdown,
-    publicationIndexFile.sourceUrl,
-  )
-  const publicationFiles = await Promise.all(publicationIndex.sources.map(loadMarkdown))
+async function loadSection(entry) {
+  const file = await loadMarkdown(entry.source)
+  const type = contentTypeFor(file.sourceUrl)
+
+  if (type === "profile") {
+    return { type, ...parseProfile(file.markdown, file.sourceUrl) }
+  }
+
+  if (type === "publications") {
+    const publicationIndex = parsePublicationIndex(file.markdown, file.sourceUrl)
+    const publicationFiles = await Promise.all(
+      publicationIndex.sources.map(function (source) {
+        return loadMarkdown(source)
+      }),
+    )
+    return {
+      type,
+      title: publicationIndex.title,
+      publications: publicationFiles.map(function (publicationFile) {
+        return parsePublication(publicationFile.markdown, publicationFile.sourceUrl)
+      }),
+    }
+  }
 
   return {
-    ...profile,
-    sectionTitle: publicationIndex.title,
-    publications: publicationFiles.map(function (file) {
-      return parsePublication(file.markdown, file.sourceUrl)
-    }),
+    type,
+    ...parseMarkdownSection(file.markdown, file.sourceUrl, entry.label),
+  }
+}
+
+async function loadSiteData() {
+  const mainFile = await loadMarkdown(MAIN_CONTENT_PATH)
+  const entries = parseMain(mainFile.markdown, mainFile.sourceUrl)
+  const sections = await Promise.all(entries.map(loadSection))
+  const profile = sections.find(function (section) {
+    return section.type === "profile"
+  })
+
+  return {
+    title: profile ? profile.title : "",
+    sections,
   }
 }
 
@@ -259,55 +400,94 @@ function renderPublicationCard(publication) {
   )
 }
 
-function render(siteData) {
-  document.title = siteData.title
-
-  const profileImage = siteData.profileImage
+function renderProfileSection(profile, isFirst) {
+  const titleMargin = isFirst ? "mt-5" : "mt-10"
+  const profileImage = profile.profileImage
     ? '<img src="' +
-      escapeHtml(siteData.profileImage) +
+      escapeHtml(profile.profileImage) +
       '" class="profile-image w-1/3 mr-5 min-w-50 phone-hidden" alt="' +
-      escapeHtml(siteData.name) +
+      escapeHtml(profile.name) +
       '">' +
       '<img src="' +
-      escapeHtml(siteData.profileImage) +
+      escapeHtml(profile.profileImage) +
       '" class="profile-image w-1/3 mr-5 w-50 phone-block hidden" alt="' +
-      escapeHtml(siteData.name) +
+      escapeHtml(profile.name) +
       '">'
     : ""
+  const profileLinks = profile.links.length
+    ? '<div class="mt-2 flex">' + renderProfileLinks(profile.links) + "</div>"
+    : ""
+
+  return (
+    '<section data-section-type="profile">' +
+    '<div class="' +
+    titleMargin +
+    ' mr-auto text-5xl font-bold flex">' +
+    escapeHtml(profile.name) +
+    "</div>" +
+    '<div class="mt-5 mr-auto text-base font-bold items-start flex phone-flex-col">' +
+    profileImage +
+    '<div class="flex-1">' +
+    profile.introHtml
+      .map(function (paragraph) {
+        return '<div class="text-wrap">' + paragraph + "</div>"
+      })
+      .join("") +
+    profileLinks +
+    "</div>" +
+    "</div>" +
+    "</section>"
+  )
+}
+
+function renderPublicationsSection(section, isFirst) {
+  const titleMargin = isFirst ? "mt-5" : "mt-10"
+  return (
+    '<section data-section-type="publications">' +
+    '<div class="' +
+    titleMargin +
+    ' mr-auto text-3xl font-bold">' +
+    escapeHtml(section.title) +
+    "</div>" +
+    '<div class="mt-5 flex flex-col gap-6 relative">' +
+    section.publications.map(renderPublicationCard).join("") +
+    "</div>" +
+    "</section>"
+  )
+}
+
+function renderMarkdownSection(section, isFirst) {
+  const titleMargin = isFirst ? "mt-5" : "mt-10"
+  return (
+    '<section data-section-type="markdown">' +
+    '<div class="' +
+    titleMargin +
+    ' mr-auto text-3xl font-bold">' +
+    renderInlineMarkdown(section.title) +
+    "</div>" +
+    '<div class="markdown-section-content mt-5">' +
+    section.bodyHtml +
+    "</div>" +
+    "</section>"
+  )
+}
+
+function renderSection(section, index) {
+  const isFirst = index === 0
+  if (section.type === "profile") return renderProfileSection(section, isFirst)
+  if (section.type === "publications") return renderPublicationsSection(section, isFirst)
+  return renderMarkdownSection(section, isFirst)
+}
+
+function render(siteData) {
+  if (siteData.title) document.title = siteData.title
 
   const app = document.getElementById("app")
   app.innerHTML =
     '<div class="main-page" font-sans="" p="x-4 y-10" text="center gray-700 dark:gray-200">' +
     '<div class="flex overflow-x-hidden px-5">' +
     '<div class="mx-auto max-w-200 text-left text-lg">' +
-    '<div class="flex flex-col">' +
-    '<div class="mt-5 mr-auto text-5xl font-bold flex">' +
-    escapeHtml(siteData.name) +
-    "</div>" +
-    '<div class="mt-5 mr-auto text-base font-bold items-start flex phone-flex-col">' +
-    profileImage +
-    '<div class="flex-1">' +
-    siteData.introHtml
-      .map(function (paragraph) {
-        return '<div class="text-wrap">' + paragraph + "</div>"
-      })
-      .join("") +
-    '<div class="mt-2 flex">' +
-    renderProfileLinks(siteData.links) +
-    "</div>" +
-    "</div>" +
-    "</div>" +
-    '<div class="mt-10 mr-auto text-3xl font-bold">' +
-    escapeHtml(siteData.sectionTitle) +
-    "</div>" +
-    "</div>" +
-    '<div class="mt-5 flex flex-col gap-6 relative">' +
-    siteData.publications
-      .map(function (publication) {
-        return renderPublicationCard(publication)
-      })
-      .join("") +
-    "</div>" +
+    siteData.sections.map(renderSection).join("") +
     '<div class="h-10"></div>' +
     "</div>" +
     "</div>" +
