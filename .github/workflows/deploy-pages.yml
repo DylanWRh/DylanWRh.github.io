@@ -1,4 +1,4 @@
-name: Deploy Pages with aDSL
+name: Deploy GitHub Pages
 
 on:
   workflow_dispatch:
@@ -25,35 +25,69 @@ jobs:
         with:
           path: personal-site
 
-      - name: Checkout private aDSL page
-        uses: actions/checkout@v6
-        with:
-          repository: DylanWRh/aDSL-page
-          token: ${{ secrets.PAGE_REPO_TOKEN }}
-          path: project-page
-
-      - name: Assemble website
+      - name: Assemble personal homepage
         shell: bash
         run: |
+          set -euo pipefail
+
           mkdir -p _site
 
-          # Existing personal homepage
           rsync -a \
             --exclude='.git' \
             --exclude='.github' \
+            --exclude='node_modules' \
             personal-site/ _site/
 
-          # aDSL project page
-          mkdir -p _site/aDSL
-          cp project-page/index.html _site/aDSL/index.html
-          cp -r project-page/static _site/aDSL/static
-
-          # Disable Jekyll processing
           touch _site/.nojekyll
 
-          # Basic checks
           test -f _site/index.html
-          test -f _site/aDSL/index.html
+
+      - name: Add published pages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.PAGE_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p _page_sources
+
+          while IFS= read -r page; do
+            path="$(jq -r '.path' <<< "$page")"
+            type="$(jq -r '.type' <<< "$page")"
+            repo="$(jq -r '.repo' <<< "$page")"
+            ref="$(jq -r '.ref' <<< "$page")"
+
+            echo "Publishing [$type] $repo@$ref -> /$path/"
+
+            if [[ -z "$path" || "$path" == /* || "$path" == *".."* ]]; then
+              echo "Invalid page path: $path"
+              exit 1
+            fi
+
+            checkout_dir="_page_sources/$(echo "$repo" | tr '/' '_')"
+
+            gh repo clone "$repo" "$checkout_dir" -- \
+              --branch "$ref" \
+              --depth 1
+
+            mkdir -p "_site/$path"
+
+            rsync -a \
+              --exclude='.git' \
+              --exclude='.github' \
+              --exclude='.gitignore' \
+              --exclude='README*' \
+              --exclude='LICENSE*' \
+              --exclude='package*.json' \
+              --exclude='node_modules' \
+              "$checkout_dir/" "_site/$path/"
+
+            test -f "_site/$path/index.html"
+          done < <(
+            jq -c \
+              '.pages[] | select(.publish == true)' \
+              personal-site/.github/pages.json
+          )
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

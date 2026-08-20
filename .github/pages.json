@@ -1,0 +1,11 @@
+{
+  "pages": [
+    {
+      "path": "aDSL",
+      "type": "paper",
+      "repo": "DylanWRh/aDSL-page",
+      "ref": "master",
+      "publish": false
+    }
+  ]
+}
