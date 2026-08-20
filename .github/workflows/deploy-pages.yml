@@ -1,0 +1,78 @@
+name: Deploy Pages with aDSL
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout personal homepage
+        uses: actions/checkout@v6
+        with:
+          path: personal-site
+
+      - name: Checkout private aDSL page
+        uses: actions/checkout@v6
+        with:
+          repository: DylanWRh/aDSL-page
+          token: ${{ secrets.PAGE_REPO_TOKEN }}
+          path: project-page
+
+      - name: Assemble website
+        shell: bash
+        run: |
+          mkdir -p _site
+
+          # Existing personal homepage
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            personal-site/ _site/
+
+          # aDSL project page
+          mkdir -p _site/aDSL
+          cp project-page/index.html _site/aDSL/index.html
+          cp -r project-page/static _site/aDSL/static
+
+          # Disable Jekyll processing
+          touch _site/.nojekyll
+
+          # Basic checks
+          test -f _site/index.html
+          test -f _site/aDSL/index.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
