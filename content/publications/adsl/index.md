@@ -6,4 +6,4 @@
 
 ![aDSL demo](./demo.mp4)
 
-[arXiv](https://arxiv.org/abs/2608.17975) [Code](https://github.com/sig-pku/aDSL)
+[arXiv](https://arxiv.org/abs/2608.17975) [Code](https://github.com/sig-pku/aDSL) [Project Page](https://DylanWRh.github.io/aDSL)
